@@ -1,0 +1,8 @@
+db.sqlite3
+.idea/
+*.py[cod]
+.DS_Store
+*.log
+/log/
+*.ini
+*.pid
