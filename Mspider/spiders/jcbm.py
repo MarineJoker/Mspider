@@ -16,7 +16,7 @@ class JcbmSpider(scrapy.Spider):
     def parse(self, response):
         # url = response.xpath('//div[@id="news_list"]//h2[@class="news_entry"]/a/@href').extract()
 
-        post_nodes = response.css('#news_list .news_block')[:1]
+        post_nodes = response.css('#news_list .news_block')
 
         for post_node in post_nodes:
             image_url = post_node.css('.entry_summary a img::attr(src)').extract_first("")
@@ -41,7 +41,7 @@ class JcbmSpider(scrapy.Spider):
             if match_re:
                 create_data = match_re.group(1)
             # create_data = response.xpath("//*[@id=news_info]//*[@class=time]/text()").extract_first("")
-            content = response.css("#news_content").extract()[0]
+            content = response.css("#news_content").extract_first("")
             tag_list = ",".join(response.css(".news_tags a::text").extract())
             # tag_list = ",".join(response.xpath("//*[@class='news_tags']//a/text()").extract())
             jcmb_item['title'] = title
