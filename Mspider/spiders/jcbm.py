@@ -13,6 +13,18 @@ class JcbmSpider(scrapy.Spider):
     allowed_domains = ['news.cnblogs.com']
     start_urls = ['http://news.cnblogs.com/']
 
+    def start_requests(self):
+        # 获取cookies
+        cookies_str = "your_cookies"
+        cookies_list = cookies_str.split(";")
+        cookies_dict = {}
+        for cookie in cookies_list:
+            tmp = cookie.split("=", 1)
+            cookies_dict[tmp[0]] = tmp[1]
+
+        return [scrapy.Request(url=self.start_urls[0], dont_filter=True, cookies=cookies_dict)]
+
+
     def parse(self, response):
         # url = response.xpath('//div[@id="news_list"]//h2[@class="news_entry"]/a/@href').extract()
 
@@ -24,7 +36,7 @@ class JcbmSpider(scrapy.Spider):
             yield Request(url=parse.urljoin(response.url, post_url), meta={"image_url": image_url}, callback=self.parse_detail)
 
         # next_url = response.css("div.pager a:last-child::text").extract_first("")
-        next_url = response.xpath("//div[@class='pager']//a[contains(text(),'Next >')]/@href").extract_first("")
+        next_url = response.xpath("//a[contains(text(),'Next >')]/@href").extract_first("")
         if next_url != "":
             # next_url = response.css("div.pager a:last-child::attr(href)").extract_first("")
             yield Request(url=parse.urljoin(response.url, next_url), callback=self.parse)
