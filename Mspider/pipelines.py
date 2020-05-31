@@ -49,7 +49,6 @@ class MysqlTwistedPipeline:
     def __init__(self, dbpool):
         self.dbpool = dbpool
 
-
     @classmethod
     def from_settings(cls, settings):
         from MySQLdb.cursors import DictCursor
@@ -65,27 +64,16 @@ class MysqlTwistedPipeline:
         dbpool = adbapi.ConnectionPool("MySQLdb", **dbparms)
         return cls(dbpool)
 
-
     def process_item(self, item, spider):
         query = self.dbpool.runInteraction(self.do_insert, item)
         query.addErrback(self.handle_error, item, spider)
+        return item
 
     def handle_error(self, failure, item, spider):
         print(failure)
 
     def do_insert(self, cursor, item):
-
-        insert_sql = """
-            insert into lagou(title, url, url_object_id, )
-            values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            ON DUPLICATE KEY UPDATE
-        """
-        params = list()
-        cursor.execute(insert_sql, tuple(params))
-        cursor.commit()
-
-        return item
-
-
-    def __init__(self, dbpool):
-        self.dbpool = dbpool
+        # 执行具体的插入
+        # 根据不同的item 构建不同的sql语句并插入到mysql中
+        insert_sql, params = item.get_insert_sql()
+        cursor.execute(insert_sql, params)

@@ -19,6 +19,7 @@ NEWSPIDER_MODULE = 'Mspider.spiders'
 USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36'
 
 # Obey robots.txt rules
+
 ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
@@ -31,9 +32,10 @@ ROBOTSTXT_OBEY = False
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
 #CONCURRENT_REQUESTS_PER_IP = 16
-
+RANDOMIZE_DOWNLOAD_DELAY = True
+DOWNLOAD_DELAY = 2
 # Disable cookies (enabled by default)
-COOKIES_ENABLED = True
+# COOKIES_ENABLED = True
 # COOKIES_DEBUG =True
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
@@ -66,7 +68,7 @@ COOKIES_ENABLED = True
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'Mspider.pipelines.JsonPipeline': 2,
+   # 'Mspider.pipelines.JsonPipeline': 2,
    'Mspider.pipelines.MysqlTwistedPipeline': 3,
    'Mspider.pipelines.MspiderPipeline': 300,
 }
@@ -94,6 +96,9 @@ ITEM_PIPELINES = {
 
 
 MYSQL_HOST = '127.0.0.1'
-MYSQL_DBNAME = 'article_spider'
+MYSQL_DBNAME = 'airticle_spider'
 MYSQL_USER = 'root'
 MYSQL_PASSWORD = 'pwd'
+
+SQL_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+SQL_DATE_FORMAT = "%Y-%m-%d"
