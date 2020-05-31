@@ -6,7 +6,8 @@
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 import codecs
 import json
-
+import MySQLdb
+from twisted.enterprise import adbapi
 
 class MspiderPipeline:
     def process_item(self, item, spider):
@@ -24,3 +25,67 @@ class JsonPipeline:
 
     def spider_closed(self, spider):
         self.file.close()
+
+
+class MysqlPipeline:
+    def __init__(self):
+        self.conn = MySQLdb.connect("127.0.0.1", 'root', '88888888', 'article_spider', charset="utf8",
+                                    use_unicode=True)
+        self.cursor = self.conn.cursor()
+
+    def process_item(self, item, spider):
+        insert_sql = """
+            insert into lagou(title, url, url_object_id, )
+            values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        params = list()
+        self.cursor.execute(insert_sql, tuple(params))
+        self.cursor.commit()
+
+        return item
+
+
+class MysqlTwistedPipeline:
+    def __init__(self, dbpool):
+        self.dbpool = dbpool
+
+
+    @classmethod
+    def from_settings(cls, settings):
+        from MySQLdb.cursors import DictCursor
+        dbparms = dict(
+            host=settings["MYSQL_HOST"],
+            db=settings["MYSQL_DBNAME"],
+            user=settings["MYSQL_USER"],
+            passwd=settings["MYSQL_PASSWORD"],
+            charset='utf8',
+            cursorclass=DictCursor,
+            use_unicode=True
+        )
+        dbpool = adbapi.ConnectionPool("MySQLdb", **dbparms)
+        return cls(dbpool)
+
+
+    def process_item(self, item, spider):
+        query = self.dbpool.runInteraction(self.do_insert, item)
+        query.addErrback(self.handle_error, item, spider)
+
+    def handle_error(self, failure, item, spider):
+        print(failure)
+
+    def do_insert(self, cursor, item):
+
+        insert_sql = """
+            insert into lagou(title, url, url_object_id, )
+            values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+        """
+        params = list()
+        cursor.execute(insert_sql, tuple(params))
+        cursor.commit()
+
+        return item
+
+
+    def __init__(self, dbpool):
+        self.dbpool = dbpool
